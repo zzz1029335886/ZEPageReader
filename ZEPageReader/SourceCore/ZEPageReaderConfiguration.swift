@@ -1,6 +1,6 @@
 import UIKit
 
-class ZEPageReaderConfiguration: NSObject {
+public class ZEPageReaderConfiguration: NSObject {
     var contentInsets: UIEdgeInsets = .zero{
         didSet{
             if contentInsets == oldValue {

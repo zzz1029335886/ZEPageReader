@@ -1,7 +1,7 @@
 import UIKit
 import SwiftUI
 
-protocol ZEPageReaderDelegate: NSObjectProtocol {
+public protocol ZEPageReaderDelegate: NSObjectProtocol {
     func pageReaderDidClick(pageReader: ZEPageReader, isMiddle: Bool)
     func pageReader(pageReader: ZEPageReader, viewFor index: Int) -> UIView
     func numberOf(pageReader: ZEPageReader) -> Int
@@ -11,7 +11,7 @@ extension ZEPageReaderDelegate{
     func pageReaderDidClick(pageReader: ZEPageReader, isMiddle: Bool) {}
 }
 
-class ZEPageReader: UIViewController,
+public class ZEPageReader: UIViewController,
               UIPageViewControllerDelegate,
               UIPageViewControllerDataSource,
               UIGestureRecognizerDelegate,
@@ -53,7 +53,7 @@ class ZEPageReader: UIViewController,
     /// 首次进阅读器
     private var firstIntoReader = true
     
-    override var prefersStatusBarHidden: Bool {
+    public override var prefersStatusBarHidden: Bool {
         return true
     }
     
@@ -86,7 +86,7 @@ class ZEPageReader: UIViewController,
     }
     
     // MARK:--UI渲染
-    override func viewDidLoad() {
+    public override func viewDidLoad() {
         super.viewDidLoad()
         
         let tapGesture = UITapGestureRecognizer.init(target: self, action: #selector(pagingTap(ges:)))
@@ -318,7 +318,7 @@ class ZEPageReader: UIViewController,
     
     // MARK:--PageVC Delegate
     
-    func pageViewController(_ pageViewController: UIPageViewController, viewControllerBefore viewController: UIViewController) -> UIViewController? {
+    public func pageViewController(_ pageViewController: UIPageViewController, viewControllerBefore viewController: UIViewController) -> UIViewController? {
         
         guard config.isTapPageTurning else {
             return nil
@@ -343,7 +343,7 @@ class ZEPageReader: UIViewController,
         return nil
     }
     
-    func pageViewController(_ pageViewController: UIPageViewController, viewControllerAfter viewController: UIViewController) -> UIViewController? {
+    public func pageViewController(_ pageViewController: UIPageViewController, viewControllerAfter viewController: UIViewController) -> UIViewController? {
         
         guard let delegate = delegate, config.isTapPageTurning else {
             return nil
@@ -370,7 +370,7 @@ class ZEPageReader: UIViewController,
         
     }
     
-    func pageViewController(_ pageViewController: UIPageViewController, didFinishAnimating finished: Bool, previousViewControllers: [UIViewController], transitionCompleted completed: Bool) {
+    public func pageViewController(_ pageViewController: UIPageViewController, didFinishAnimating finished: Bool, previousViewControllers: [UIViewController], transitionCompleted completed: Bool) {
         guard let controller = pageViewController.viewControllers?.first else { return }
         self.containerController(currentController: controller)
     }
@@ -384,15 +384,15 @@ class ZEPageReader: UIViewController,
     
     // MARK:--Table View Delegate
     
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+    public func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return config.contentFrame.height
     }
     
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return self.tableView?.count ?? 0
     }
     
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+    public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         var cell = self.tableView?.dequeueReusableCell(withIdentifier: "dua.reader.cell")
         if let subviews = cell?.contentView.subviews {
             for item in subviews {
@@ -416,7 +416,7 @@ class ZEPageReader: UIViewController,
     }
     
     
-    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+    public func scrollViewDidScroll(_ scrollView: UIScrollView) {
         guard let tableView = tableView else {
             return
         }
