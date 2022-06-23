@@ -8,8 +8,8 @@
 import UIKit
 
 class ViewController: UIViewController, ZEPageReaderDelegate {
-    func pageReaderDidClickMiddle(pageReader: ZEPageReader) {
-        
+    func pageReaderDidClick(pageReader: ZEPageReader, isMiddle: Bool) {
+        print(isMiddle)
     }
     
     func pageReader(pageReader: ZEPageReader, viewFor index: Int) -> UIView {
@@ -17,7 +17,7 @@ class ViewController: UIViewController, ZEPageReaderDelegate {
     }
     
     func numberOf(pageReader: ZEPageReader) -> Int {
-        return views.count
+        views.count
     }
     
     var views: [UIView] = []
@@ -39,6 +39,7 @@ class ViewController: UIViewController, ZEPageReaderDelegate {
         view.backgroundColor = .white
         
         let config = ZEPageReaderConfiguration.init()
+        config.scrollType = .none
         
         let pageReader = ZEPageReader.init(config: config)
         pageReader.delegate = self

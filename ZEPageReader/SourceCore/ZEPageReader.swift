@@ -2,9 +2,13 @@ import UIKit
 import SwiftUI
 
 protocol ZEPageReaderDelegate: NSObjectProtocol {
-    func pageReaderDidClickMiddle(pageReader: ZEPageReader) -> Void
+    func pageReaderDidClick(pageReader: ZEPageReader, isMiddle: Bool)
     func pageReader(pageReader: ZEPageReader, viewFor index: Int) -> UIView
     func numberOf(pageReader: ZEPageReader) -> Int
+}
+
+extension ZEPageReaderDelegate{
+    func pageReaderDidClick(pageReader: ZEPageReader, isMiddle: Bool) {}
 }
 
 class ZEPageReader: UIViewController,
@@ -76,11 +80,9 @@ class ZEPageReader: UIViewController,
     /// - Parameter ges: 单击手势
     @objc private func pagingTap(ges: UITapGestureRecognizer) -> Void {
         let tapPoint = ges.location(in: self.view)
-        let width = UIScreen.main.bounds.size.width
-        let rect = CGRect(x: width * 0.3333, y: 0, width: width * 0.3333, height: UIScreen.main.bounds.size.height)
-        if rect.contains(tapPoint) {
-            self.delegate?.pageReaderDidClickMiddle(pageReader: self)
-        }
+        let width = self.view.frame.width
+        let rect = CGRect(x: width * 0.3333, y: 0, width: width * 0.3333, height: self.view.frame.height)
+        self.delegate?.pageReaderDidClick(pageReader: self, isMiddle: rect.contains(tapPoint))
     }
     
     // MARK:--UI渲染
@@ -152,9 +154,12 @@ class ZEPageReader: UIViewController,
         let translationVC = ZEPageReaderAtranslationController()
         translationVC.delegate = self
         translationVC.allowAnimating = animating
+        translationVC.isTapPageTurning = config.isTapPageTurning
+        
         self.addChild(translationVC)
         translationVC.didMove(toParent: self)
         self.view.addSubview(translationVC.view)
+        
         self.translationVC = translationVC
     }
     
@@ -162,9 +167,7 @@ class ZEPageReader: UIViewController,
         guard let delegate = delegate else {
             return
         }
-        
-        
-        
+                
         switch self.config.scrollType {
         case .curl:
             let pageReader = self.getPageVCWith(pageReaderIndex: pageReaderIndex)
@@ -221,25 +224,24 @@ class ZEPageReader: UIViewController,
     }
     
     func clearReaderViewIfNeed() -> Void {
-        if self.pageReaderVC != nil {
-            self.pageReaderVC?.view.removeFromSuperview()
-            self.pageReaderVC?.willMove(toParent: nil)
-            self.pageReaderVC?.removeFromParent()
+        if let pageReaderVC = pageReaderVC {
+            pageReaderVC.view.removeFromSuperview()
+            pageReaderVC.willMove(toParent: nil)
+            pageReaderVC.removeFromParent()
         }
-        if self.tableView != nil {
+        
+        if tableView != nil {
             for item in self.view.subviews {
                 item.removeFromSuperview()
             }
         }
-        if self.translationVC != nil {
-            self.translationVC?.view.removeFromSuperview()
-            self.translationVC?.willMove(toParent: nil)
-            self.translationVC?.removeFromParent()
+        
+        if let translationVC = translationVC {
+            translationVC.view.removeFromSuperview()
+            translationVC.willMove(toParent: nil)
+            translationVC.removeFromParent()
         }
     }
-    
-    /// MARK:--数据处理
-    
     
     /// 仿真、平移、无动画翻页模式使用
     ///
@@ -274,21 +276,32 @@ class ZEPageReader: UIViewController,
             (String) in
             self?.reloadReader()
         }
+        
+        self.config.didTapPageTurningChanged = {
+            [weak self]
+            (isTapPageTurning) in
+            guard let `self` = self else { return }
+            self.translationVC?.isTapPageTurning = isTapPageTurning
+        }
+        
         self.config.didContentInsetsChanged = {
             [weak self]
             (scrollType) in
             self?.reloadReader()
         }
+        
         self.config.didPageIndexChanged = {
             [weak self]
             (pageReaderIndex) in
             self?.reloadReader()
         }
+        
         self.config.didBackgroundImageChanged = {
             [weak self]
             (UIImage) in
             self?.loadBackgroundImage()
         }
+        
         self.config.didScrollTypeChanged = {
             [weak self]
             (scrollType) in
@@ -306,6 +319,10 @@ class ZEPageReader: UIViewController,
     // MARK:--PageVC Delegate
     
     func pageViewController(_ pageViewController: UIPageViewController, viewControllerBefore viewController: UIViewController) -> UIViewController? {
+        
+        guard config.isTapPageTurning else {
+            return nil
+        }
         
         if let pageReader = viewController as? ZEPageReaderViewController {
             let backPage = ZEPageReaderBackViewController()
@@ -327,7 +344,8 @@ class ZEPageReader: UIViewController,
     }
     
     func pageViewController(_ pageViewController: UIPageViewController, viewControllerAfter viewController: UIViewController) -> UIViewController? {
-        guard let delegate = delegate else {
+        
+        guard let delegate = delegate, config.isTapPageTurning else {
             return nil
         }
         

@@ -48,7 +48,16 @@ class ZEPageReaderConfiguration: NSObject {
             self.didPageIndexChanged?(index)
         }
     }
+    
+    /// 是否点击两边翻页
+    var isTapPageTurning = true{
+        didSet{
+            self.didTapPageTurningChanged?(isTapPageTurning)
+        }
+    }
             
+    var didTapPageTurningChanged: ((Bool) -> Void)?
+    
     var didContentFrameChanged: ((CGRect) -> Void)?
     var didBackgroundImageChanged: ((UIImage?) -> Void)?
     var didContentInsetsChanged: ((UIEdgeInsets) -> Void)?

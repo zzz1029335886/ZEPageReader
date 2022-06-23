@@ -34,6 +34,8 @@ class ZEPageReaderAtranslationController: UIViewController, UIGestureRecognizerD
     
     var allowAnimating = true // true 平移效果，false 无效果
     
+    var isTapPageTurning = true
+    
     var screenWidth: CGFloat{ self.view.frame.width }
     
     //    MARK: 对外方法
@@ -229,6 +231,8 @@ class ZEPageReaderAtranslationController: UIViewController, UIGestureRecognizerD
     ///
     /// - Parameter gesture: 点击手势识别器
     @objc func handleTapGes(gesture: UITapGestureRecognizer) -> Void {
+        guard isTapPageTurning else { return }
+        
         let hitPoint = gesture.location(in: gesture.view)
         guard let curController = self.children.first else { return }
         guard let gestureView = gesture.view else { return }
@@ -246,9 +250,7 @@ class ZEPageReaderAtranslationController: UIViewController, UIGestureRecognizerD
                     self.delegate?.translationController(translationController: self, didFinishAnimating: complete, previousController: curController, transitionCompleted: complete)
                 })
             }
-        }
-        
-        if hitPoint.x > gestureView.frame.size.width * 0.6666 {
+        }else if hitPoint.x > gestureView.frame.size.width * 0.6666 {
             //            滑向下一个controller
             if let nextController = self.delegate?.translationController(translationController: self, controllerAfter: curController) {
                 self.delegate?.translationController(translationController: self, willTransitionTo: nextController)
